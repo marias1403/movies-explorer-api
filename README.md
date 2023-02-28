@@ -3,6 +3,6 @@
 
 Пожалуйста, прикрепите в это описание ссылку на сайт, размещенный на Яндекс.Облаке.
 
-IP 51.250.84.39
+IP 130.193.37.238
 
-Backend  https://api.mesto.marias.nomoredomains.work
+Backend  https://api.marias.movies.explore.nomoredomains.work
