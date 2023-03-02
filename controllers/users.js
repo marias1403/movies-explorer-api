@@ -5,6 +5,7 @@ const User = require('../models/user');
 const NotFoundError = require('../errors/not-found-error');
 const BadRequestError = require('../errors/bad-request-error');
 const ConflictError = require('../errors/conflict-error');
+const validationConstants = require('./constants');
 
 const createUser = (req, res, next) => {
   bcrypt.hash(req.body.password, 10)
@@ -19,10 +20,10 @@ const createUser = (req, res, next) => {
     }))
     .catch((err) => {
       if (err.name === 'CastError' || err.name === 'ValidationError') {
-        next(new BadRequestError('Переданы некорректные данные при создании пользователя'));
+        next(new BadRequestError(validationConstants.CREATE_USER_VALIDATION_ERROR));
       }
       if (err.code === 11000) {
-        next(new ConflictError('Пользователь с таким email уже существует'));
+        next(new ConflictError(validationConstants.CREATE_USER_CONFLICT_ERROR));
       } else {
         next(err);
       }
@@ -47,7 +48,7 @@ const login = (req, res, next) => {
 const getCurrentUserInfo = (req, res, next) => User.findOne({ _id: req.user._id })
   .then((user) => {
     if (user === null) {
-      throw new NotFoundError('Пользователь по указанному _id не найден');
+      throw new NotFoundError(validationConstants.USER_NOT_FOUND_ERROR);
     }
     return res.status(http2.constants.HTTP_STATUS_OK).send({ data: user });
   })
@@ -65,13 +66,13 @@ const updateUserProfile = (req, res, next) => {
   )
     .then((user) => {
       if (user === null) {
-        throw new NotFoundError('Пользователь по указанному _id не найден');
+        throw new NotFoundError(validationConstants.USER_NOT_FOUND_ERROR);
       }
       return res.status(http2.constants.HTTP_STATUS_OK).send({ data: user });
     })
     .catch((err) => {
       if (err.name === 'ValidationError') {
-        next(new BadRequestError('Переданы некорректные данные при обновлении профиля'));
+        next(new BadRequestError(validationConstants.UPDATE_USER_VALIDATION_ERROR));
       } else {
         next(err);
       }

@@ -1,6 +1,7 @@
 require('dotenv').config();
 
 const express = require('express');
+const helmet = require('helmet');
 const mongoose = require('mongoose');
 const { errors } = require('celebrate');
 
@@ -10,13 +11,18 @@ const auth = require('./middlewares/auth');
 const { validateUserBody, validateAuthentication } = require('./middlewares/validations');
 const { requestLogger, errorLogger } = require('./middlewares/logger');
 const { createUser, login } = require('./controllers/users');
+const rateLimiterUsingThirdParty = require('./middlewares/rateLimiter');
+const errorsHandler = require('./middlewares/errorsHandler');
 const NotFoundError = require('./errors/not-found-error');
 
-const { PORT = 3000 } = process.env;
+const { PORT = 3000, MONGO_DSN } = process.env;
 const app = express();
 
+app.use(helmet());
+app.use(rateLimiterUsingThirdParty);
+
 mongoose.set('strictQuery', false);
-mongoose.connect('mongodb://localhost:27017/bitfilmsdb', {
+mongoose.connect(MONGO_DSN, {
   useNewUrlParser: true,
 });
 
@@ -56,17 +62,7 @@ app.use(errorLogger);
 
 app.use(errors());
 
-app.use((err, req, res, next) => {
-  const { statusCode = 500, message } = err;
-  res
-    .status(statusCode)
-    .send({
-      message: statusCode === 500
-        ? 'На сервере произошла ошибка'
-        : message,
-    });
-  next();
-});
+app.use(errorsHandler);
 
 app.listen(PORT, () => {
   console.log(`App listening on port ${PORT}`);
