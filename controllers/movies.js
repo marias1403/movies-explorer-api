@@ -3,9 +3,9 @@ const Movie = require('../models/movie');
 const NotFoundError = require('../errors/not-found-error');
 const BadRequestError = require('../errors/bad-request-error');
 const ForbiddenError = require('../errors/forbidden-error');
-const validationConstants = require('./constants');
+const validationConstants = require('../utils/constants');
 
-const getMovies = (req, res, next) => Movie.find({})
+const getMovies = (req, res, next) => Movie.find({ owner: req.user._id })
   .populate('owner')
   .then((movies) => res.send({ data: movies }))
   .catch(next);

@@ -1,5 +1,6 @@
 const { celebrate, Joi } = require('celebrate');
 const validator = require('validator');
+const validationConstants = require('../utils/constants');
 
 const validateAuthentication = celebrate({
   body: Joi.object().keys({
@@ -18,7 +19,7 @@ const validateUserBody = celebrate({
 
 const validateURL = (value) => {
   if (!validator.isURL(value, { require_protocol: true })) {
-    throw new Error('Неправильный формат ссылки');
+    throw new Error(validationConstants.URL_JOI_VALIDATION_ERROR);
   }
   return value;
 };
@@ -30,12 +31,12 @@ const validateMovieBody = celebrate({
     duration: Joi.number().required(),
     year: Joi.string().required(),
     description: Joi.string().required(),
-    image: Joi.string().custom(validateURL, 'custom link validation'),
-    trailer: Joi.string().custom(validateURL, 'custom link validation'),
+    image: Joi.string().custom(validateURL, 'custom link validation').required(),
+    trailer: Joi.string().custom(validateURL, 'custom link validation').required(),
     nameRU: Joi.string().required(),
     nameEN: Joi.string().required(),
-    thumbnail: Joi.string().custom(validateURL, 'custom link validation'),
-    movieId: Joi.string().required(),
+    thumbnail: Joi.string().custom(validateURL, 'custom link validation').required(),
+    movieId: Joi.number().required(),
   }),
 });
 

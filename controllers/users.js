@@ -5,7 +5,7 @@ const User = require('../models/user');
 const NotFoundError = require('../errors/not-found-error');
 const BadRequestError = require('../errors/bad-request-error');
 const ConflictError = require('../errors/conflict-error');
-const validationConstants = require('./constants');
+const validationConstants = require('../utils/constants');
 
 const createUser = (req, res, next) => {
   bcrypt.hash(req.body.password, 10)
@@ -73,6 +73,9 @@ const updateUserProfile = (req, res, next) => {
     .catch((err) => {
       if (err.name === 'ValidationError') {
         next(new BadRequestError(validationConstants.UPDATE_USER_VALIDATION_ERROR));
+      }
+      if (err.code === 11000) {
+        next(new ConflictError(validationConstants.CREATE_USER_CONFLICT_ERROR));
       } else {
         next(err);
       }
